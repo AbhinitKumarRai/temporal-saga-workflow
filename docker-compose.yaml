@@ -1,0 +1,25 @@
+services:
+  worker:
+    build:
+      context: .
+      dockerfile: ./cmd/worker/Dockerfile
+    environment:
+      - TEMPORAL_ADDRESS=host.docker.internal:7233 # ✅ connect to your local temporal
+      - TEMPORAL_NAMESPACE=default
+      - TEMPORAL_TASK_QUEUE=saga-task-queue
+      - TRANSACTION_TIMEOUT_SECONDS=30
+      - HTTP_TIMEOUT_SECONDS=10
+
+  api:
+    build:
+      context: .
+      dockerfile: ./cmd/api/Dockerfile
+    environment:
+      - TEMPORAL_ADDRESS=host.docker.internal:7233 # ✅ connect to your local temporal
+      - TEMPORAL_NAMESPACE=default
+      - TEMPORAL_TASK_QUEUE=saga-task-queue
+      - SERVER_PORT=8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - worker
